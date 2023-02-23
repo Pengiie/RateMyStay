@@ -5,15 +5,95 @@ generator client {
     provider = "prisma-client-js"
 }
 
+generator zod {
+    provider    = "zod-prisma"
+    output      = "./generator/models"
+    modelCase   = "camelCase"
+    modelSuffix = "Schema"
+}
+
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
 model User {
-    id        String      @id
-    name      String
-    email     String      @unique
-   
+    id    String @id
+    name  String
+    email String @unique
+
     @@map("users")
+}
+
+model University {
+    id       String   @id
+    name     String   @unique
+    campuses Campus[]
+
+    @@map("universities")
+}
+
+model Campus {
+    id           String     @id
+    name         String
+    address      Address    @relation(fields: [addressId], references: [id])
+    addressId    String
+    university   University @relation(fields: [universityId], references: [id])
+    universityId String
+
+    livingSpaces LivingSpace[]
+
+    @@map("campuses")
+}
+
+model LivingSpace {
+    id      String  @id
+    placeId String  @unique
+    name    String
+    website String?
+    phone   String?
+    photoUrl  String?
+    photoAttributions String[]
+    mapsUrl String
+
+    type      LivingType
+    address   Address    @relation(fields: [addressId], references: [id])
+    addressId String
+    campus    Campus     @relation(fields: [campusId], references: [id])
+    campusId  String
+
+    pricings Pricing[]
+
+    @@map("living_spaces")
+}
+
+model Pricing {
+    id            String      @id
+    name          String
+    price         Decimal
+    livingSpace   LivingSpace @relation(fields: [livingSpaceId], references: [id])
+    livingSpaceId String
+
+    @@map("pricings")
+}
+
+enum LivingType {
+    DORMITORY
+    APARTMENT
+    HOUSE
+}
+
+model Address {
+    id     String @id
+    street String
+    city   String
+    state  String
+    zip    String
+    latitude    Float
+    longitude    Float
+
+    campuses     Campus[]
+    livingSpaces LivingSpace[]
+
+    @@map("addresses")
 }
