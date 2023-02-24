@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "dev": "env-cmd yarn workspace webapp dev",
+    "build": "env-cmd yarn workspace webapp build",
+    "start": "env-cmd yarn workspace webapp start",
     "scrape": "env-cmd yarn workspace scraper scrape",
     "generate": "env-cmd yarn workspace prisma-gen run prisma generate && env-cmd yarn workspace prisma-gen run compile",
     "push": "env-cmd yarn workspace prisma-gen run prisma db push"
