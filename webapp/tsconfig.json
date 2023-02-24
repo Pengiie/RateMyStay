@@ -14,10 +14,11 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs",
-    "../prisma/generator/models/*.ts",
+    "../prisma/generator/**/*.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
+    "./node_modules",
+    "../node_modules",
   ]
 }

@@ -1,7 +1,7 @@
 import { useController, UseControllerProps, FieldValues } from "react-hook-form";
 import { Listbox } from "@headlessui/react";
 import { z } from "zod";
-import { universitySchema } from "../../../prisma/generator/models";
+import { universitySchema } from "prisma-gen";
 import { ChevronUpDownIcon } from "@heroicons/react/24/outline";
 
 type ListBoxItem = {

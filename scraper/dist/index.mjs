@@ -1,5 +1,5 @@
 // src/index.ts
-import { LivingType, PrismaClient as PrismaClient2 } from "@prisma/client";
+import { PrismaClient as PrismaClient2 } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 // ../webapp/src/server/db.ts
@@ -3475,13 +3475,13 @@ var scrapePlace = async (campusId) => {
     return;
   }
   const { latitude, longitude } = campus.address;
-  const dorms = await searchFor("dormitory", 2e3, 2, latitude, longitude);
-  const apartments = await searchFor("apartment", 1e4, 10, latitude, longitude);
-  const townhomes = await searchFor("townhomes", 1e4, 2, latitude, longitude);
+  const dorms = await searchFor("dormitory", 2e3, 3, latitude, longitude);
+  const apartments = await searchFor("apartment", 1e4, 3, latitude, longitude);
+  const townhomes = await searchFor("townhomes", 1e4, 3, latitude, longitude);
   const places = [
-    ...dorms.map((dorm) => ({ placeId: dorm, type: LivingType.DORMITORY })),
-    ...apartments.map((apartment) => ({ placeId: apartment, type: LivingType.APARTMENT })),
-    ...townhomes.map((townhome) => ({ placeId: townhome, type: LivingType.HOUSE }))
+    ...dorms.map((dorm) => ({ placeId: dorm, type: "DORMITORY" })),
+    ...apartments.map((apartment) => ({ placeId: apartment, type: "APARTMENT" })),
+    ...townhomes.map((townhome) => ({ placeId: townhome, type: "TOWNHOME" }))
   ];
   console.log(`Found ${dorms.length} dormitories, ${apartments.length} apartments, and ${townhomes.length} townhomes`);
   await Promise.all(places.map((place) => getAndSavePlaceDetails(campusId, place.placeId, place.type)));
@@ -3499,6 +3499,7 @@ var searchFor = async (keyword, radius, pages, latitude, longitude) => {
   let nextPageToken = data.next_page_token;
   const places = data.results;
   for (let i = 0; i < pages - 1; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 2e3));
     const params2 = new URLSearchParams();
     params2.append("pagetoken", nextPageToken);
     params2.append("key", process.env.GOOGLE_MAPS_API_KEY);
@@ -3525,12 +3526,17 @@ var getAndSavePlaceDetails = async (campusId, placeId, placeType) => {
   const city = place.address_components?.find((component) => component.types.includes("locality"))?.long_name;
   const state = place.address_components?.find((component) => component.types.includes("administrative_area_level_1"))?.short_name;
   const zip = place.address_components?.find((component) => component.types.includes("postal_code"))?.long_name;
+  if (!city || !state || !zip)
+    return;
   const phoneNumber = place.international_phone_number?.split(" ")[1].replace(/\D/g, "");
   const photo = place.photos?.[0];
-  console.log(photo);
   const photoUrl = photo && await getPhotoUrl(photo.photo_reference);
-  await prisma.livingSpace.create({
-    data: {
+  await prisma.livingSpace.upsert({
+    where: {
+      placeId
+    },
+    update: {},
+    create: {
       id: nanoid(),
       campus: {
         connect: {
@@ -3565,5 +3571,5 @@ var getPhotoUrl = async (photoReference) => {
   params.append("key", process.env.GOOGLE_MAPS_API_KEY);
   return `https://maps.googleapis.com/maps/api/place/photo?${params.toString()}`;
 };
-scrapePlace("OQCG8qrGMp6V0WSaPXGpI");
+scrapePlace("QrXZ3z0n04YBnnNYB2Zio");
 //# sourceMappingURL=index.mjs.map

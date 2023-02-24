@@ -4,18 +4,17 @@
   "private": true,
   "workspaces": [
     "webapp",
-    "scraper"
+    "scraper",
+    "prisma-gen"
   ],
   "scripts": {
-    "postinstall": "prisma generate",
     "dev": "env-cmd yarn workspace webapp dev",
-    "scrape": "env-cmd yarn workspace scraper scrape"
+    "scrape": "env-cmd yarn workspace scraper scrape",
+    "generate": "env-cmd yarn workspace prisma-gen run prisma generate && env-cmd yarn workspace prisma-gen run compile",
+    "push": "env-cmd yarn workspace prisma-gen run prisma db push"
   },
   "devDependencies": {
-    "env-cmd": "^10.1.0",
-    "prisma": "^4.9.0",
-    "zod": "^3.20.6",
-    "zod-prisma": "^0.5.4"
+    "env-cmd": "^10.1.0"
   },
   "packageManager": "yarn@3.4.1"
 }

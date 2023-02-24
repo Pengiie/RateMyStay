@@ -3,7 +3,7 @@
 import { useController, UseControllerProps, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Navbar from "../components/Navbar";
-import { universitySchema } from "../../prisma/generator/models";
+import { universitySchema } from "prisma-gen";
 import { z } from "zod";
 import { trpc } from "../trpc";
 import { Combobox } from "@headlessui/react";
@@ -17,7 +17,7 @@ type Props = {
     universities: z.infer<typeof universitySchema>[];
 };
 
-export const Autocomplete = (
+const Autocomplete = (
     props: Props & UseControllerProps<{ name: string }>
 ) => {
     const {

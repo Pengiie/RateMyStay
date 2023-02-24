@@ -20,6 +20,15 @@ const config = {
   //   locales: ["en"],
   //   defaultLocale: "en",
   // },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+        pathname: "/maps/api/place/photo",
+      }
+    ]
+  },
   experimental: {
     appDir: true,
   }

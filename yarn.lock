@@ -3939,6 +3939,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prisma-gen@workspace:*, prisma-gen@workspace:prisma-gen":
+  version: 0.0.0-use.local
+  resolution: "prisma-gen@workspace:prisma-gen"
+  dependencies:
+    prisma: ^4.9.0
+    tsup: ^6.6.3
+    zod: ^3.20.6
+    zod-prisma: ^0.5.4
+  languageName: unknown
+  linkType: soft
+
 "prisma@npm:^4.9.0":
   version: 4.10.1
   resolution: "prisma@npm:4.10.1"
@@ -4005,9 +4016,6 @@ __metadata:
   resolution: "ratemystay@workspace:."
   dependencies:
     env-cmd: ^10.1.0
-    prisma: ^4.9.0
-    zod: ^3.20.6
-    zod-prisma: ^0.5.4
   languageName: unknown
   linkType: soft
 
@@ -4270,6 +4278,7 @@ __metadata:
     chalk: ^5.2.0
     figlet: ^1.5.2
     nanoid: ^4.0.1
+    prisma-gen: "workspace:*"
     tsup: ^6.6.3
     typescript: ^4.9.5
   languageName: unknown
@@ -4925,6 +4934,7 @@ __metadata:
     postcss: ^8.4.14
     prettier: ^2.8.1
     prettier-plugin-tailwindcss: ^0.2.1
+    prisma-gen: "workspace:*"
     react: latest
     react-dom: latest
     react-hook-form: ^7.43.1

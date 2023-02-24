@@ -1,5 +1,4 @@
 import * as z from "zod"
-import { LivingType } from "@prisma/client"
 import { CompleteAddress, relatedAddressSchema, CompleteCampus, relatedCampusSchema, CompletePricing, relatedPricingSchema } from "./index"
 
 export const livingSpaceSchema = z.object({
@@ -11,7 +10,7 @@ export const livingSpaceSchema = z.object({
   photoUrl: z.string().nullish(),
   photoAttributions: z.string().array(),
   mapsUrl: z.string(),
-  type: z.nativeEnum(LivingType),
+  type: z.string(),
   addressId: z.string(),
   campusId: z.string(),
 })

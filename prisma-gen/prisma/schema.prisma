@@ -7,7 +7,7 @@ generator client {
 
 generator zod {
     provider    = "zod-prisma"
-    output      = "./generator/models"
+    output      = "../src"
     modelCase   = "camelCase"
     modelSuffix = "Schema"
 }
@@ -56,7 +56,7 @@ model LivingSpace {
     photoAttributions String[]
     mapsUrl String
 
-    type      LivingType
+    type      String
     address   Address    @relation(fields: [addressId], references: [id])
     addressId String
     campus    Campus     @relation(fields: [campusId], references: [id])
@@ -75,12 +75,6 @@ model Pricing {
     livingSpaceId String
 
     @@map("pricings")
-}
-
-enum LivingType {
-    DORMITORY
-    APARTMENT
-    HOUSE
 }
 
 model Address {

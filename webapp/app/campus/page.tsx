@@ -3,7 +3,7 @@
 import { useController, UseControllerProps, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Navbar from "../components/Navbar";
-import { campusSchema, universitySchema } from "../../../prisma/generator/models";
+import { campusSchema, universitySchema } from "prisma-gen"
 import { z } from "zod";
 import { trpc } from "../trpc";
 import { Combobox, Listbox } from "@headlessui/react";

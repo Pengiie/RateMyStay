@@ -1,10 +1,11 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { universitySchema } from "../../../../../prisma/generator/models";
+import { universitySchema } from "prisma-gen";
 import { createRouter, baseProcedure } from "../trpc";
 import { campusRouter } from "./campus/campus";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 export const universityRouter = createRouter({
     campus: campusRouter,
@@ -24,7 +25,7 @@ export const universityRouter = createRouter({
                 });
             } catch (e) {
                 if (
-                    e instanceof Prisma.PrismaClientKnownRequestError &&
+                    e instanceof PrismaClientKnownRequestError &&
                     e.code === "P2002"
                 ) {
                     throw new TRPCError({

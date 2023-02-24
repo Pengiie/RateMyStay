@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { sign, verify } from 'jsonwebtoken';
 import { prisma } from './db';
 import { nanoid } from 'nanoid';
-import { userSchema } from '../../prisma/generator/models';
+import { userSchema } from 'prisma-gen';
 //import { createDatabaseAddress } from './address';
 
 export namespace OAuth {

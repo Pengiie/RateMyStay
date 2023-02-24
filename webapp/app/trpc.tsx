@@ -1,5 +1,7 @@
 "use client";
 
+import { createTRPCProxyClient } from "@trpc/client";
+import { inferRouterOutputs } from "@trpc/server";
 import { createTRPCReact, httpBatchLink, loggerLink } from "@trpc/react-query";
 import { useState } from "react";
 import type { AppRouter } from "../src/server/api/root";
@@ -15,6 +17,15 @@ const getBaseUrl = () => {
 export const trpc = createTRPCReact<AppRouter>({
     
 });
+
+export const trpcClient = createTRPCProxyClient<AppRouter>({
+    transformer: superjson,
+    links: [
+        httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+        })
+    ]
+})
 
 export const TRPCClientProvider = ({
     children,
@@ -45,3 +56,5 @@ export const TRPCClientProvider = ({
         </trpc.Provider>
     );
 };
+
+export type RouterOutput = inferRouterOutputs<AppRouter>;

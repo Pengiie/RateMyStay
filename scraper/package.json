@@ -16,6 +16,7 @@
         "@prisma/client": "^4.10.1",
         "chalk": "^5.2.0",
         "figlet": "^1.5.2",
-        "nanoid": "^4.0.1"
+        "nanoid": "^4.0.1",
+        "prisma-gen": "workspace:*"
     }
 }

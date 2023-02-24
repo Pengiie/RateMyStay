@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.0",
     "nanoid": "^4.0.1",
     "next": "latest",
+    "prisma-gen": "workspace:*",
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "^7.43.1",
