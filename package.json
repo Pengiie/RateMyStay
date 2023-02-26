@@ -9,12 +9,12 @@
   ],
   "scripts": {
     "postinstall": "yarn generate",
-    "dev": "env-cmd yarn workspace webapp dev",
-    "build": "env-cmd yarn workspace webapp build",
-    "start": "env-cmd yarn workspace webapp start",
-    "scrape": "env-cmd yarn workspace scraper scrape",
-    "generate": "env-cmd yarn workspace prisma-gen run prisma generate && env-cmd yarn workspace prisma-gen run postgen",
-    "push": "env-cmd yarn workspace prisma-gen run prisma db push && env-cmd yarn workspace prisma-gen run postgen"
+    "dev": "yarn workspace webapp dev",
+    "build": "yarn workspace webapp build",
+    "start": "yarn workspace webapp start",
+    "scrape": "yarn workspace scraper scrape",
+    "generate": "yarn workspace prisma-gen run prisma generate && env-cmd yarn workspace prisma-gen run postgen",
+    "push": "yarn workspace prisma-gen run prisma db push && env-cmd yarn workspace prisma-gen run postgen"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0"
