@@ -8,6 +8,7 @@
     "prisma-gen"
   ],
   "scripts": {
+    "postinstall": "yarn generate",
     "dev": "env-cmd yarn workspace webapp dev",
     "build": "env-cmd yarn workspace webapp build",
     "start": "env-cmd yarn workspace webapp start",
