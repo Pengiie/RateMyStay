@@ -2,12 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { URLSearchParams } from "url";
 import { z } from "zod";
+import type { LivingType } from "prisma-gen";
 import {
     addressSchema,
     campusSchema,
     livingSpaceSchema,
     universitySchema,
-    LivingType,
 } from "prisma-gen";
 import { createRouter } from "../../trpc";
 import { baseProcedure } from "../../trpc";
@@ -49,23 +49,31 @@ export const campusRouter = createRouter({
             }
 
             const {
-                result: { address_components, adr_address, geometry },
-            }: { result: google.maps.places.PlaceResult } = await res.json();
+                result: { address_components, geometry },
+            } = (await res.json()) as {
+                result: google.maps.places.PlaceResult;
+            };
+
+            if (!address_components || !geometry)
+                throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
             const street =
-                address_components!.find((c) => c.types.includes("route"))
+                address_components.find((c) => c.types.includes("route"))
                     ?.long_name ?? "";
-            const city = address_components!.find((c) =>
-                c.types.includes("locality")
-            )!.long_name;
-            const state = address_components!.find((c) =>
-                c.types.includes("administrative_area_level_1")
-            )!.long_name;
-            const zip = address_components!.find((c) =>
-                c.types.includes("postal_code")
-            )!.long_name;
-            const latitude = geometry!.location!.lat as any as number;
-            const longitude = geometry!.location!.lng as any as number;
+            const city =
+                address_components.find((c) => c.types.includes("locality"))
+                    ?.long_name ?? "";
+            const state =
+                address_components.find((c) =>
+                    c.types.includes("administrative_area_level_1")
+                )?.long_name ?? "";
+            const zip =
+                address_components.find((c) => c.types.includes("postal_code"))
+                    ?.long_name ?? "";
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            const latitude = geometry?.location?.lat as unknown as number;
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            const longitude = geometry?.location?.lng as unknown as number;
 
             return await ctx.prisma.campus.create({
                 data: {

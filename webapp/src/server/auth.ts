@@ -57,7 +57,7 @@ export namespace OAuth {
 
 			const params = [
 				`client_id=${provider.clientId}`,
-				`redirect_uri=${process.env.OAUTH_REDIRECT_URI}/${providerName}`,
+				`redirect_uri=${process.env.OAUTH_REDIRECT_URI!}/${providerName}`,
 				`response_type=code`,
 				`scope=${provider.scope.join('%20')}`,
 				...additionalParams,
@@ -77,7 +77,7 @@ export namespace OAuth {
 		params.append('client_id', provider.clientId);
 		params.append('client_secret', provider.clientSecret);
 		params.append('code', authorizationToken);
-		params.append('redirect_uri', `${process.env.OAUTH_REDIRECT_URI}/${providerName}`);
+		params.append('redirect_uri', `${process.env.OAUTH_REDIRECT_URI!}/${providerName}`);
 		params.append('grant_type', 'authorization_code');
 
 		const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -86,7 +86,7 @@ export namespace OAuth {
 		});
 		if (response.status !== 200)
 			throw new OAuthError('Invalid authorization token, could be expired');
-		const authData = await response.json();
+		const authData = await response.json() as { access_token: string, refresh_token: string, expires_in: number, scope: string, token_type: string };
 		return {
 			accessToken: authData.access_token,
 			refreshToken: authData.refresh_token,
