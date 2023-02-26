@@ -37,7 +37,7 @@ export const campusRouter = createRouter({
                     "geometry",
                 ].join(",")
             );
-            params.append("key", process.env.GOOGLE_MAPS_API_KEY!);
+            params.append("key", process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!);
             const res = await fetch(
                 `https://maps.googleapis.com/maps/api/place/details/json?${params.toString()}`
             );
