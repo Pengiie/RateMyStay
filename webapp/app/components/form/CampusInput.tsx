@@ -29,6 +29,7 @@ export default function UniversityInput<FormData extends FieldValues>(
                     displayValue={(campus: Campus | null) =>
                         campus ? displayName(campus) : ""
                     }
+                    placeholder="University"
                     className="w-full bg-gray-100 p-4"
                     autoComplete="off"
                 />
