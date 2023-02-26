@@ -13,8 +13,8 @@
     "build": "yarn workspace webapp build",
     "start": "yarn workspace webapp start",
     "scrape": "yarn workspace scraper scrape",
-    "generate": "yarn workspace prisma-gen run prisma generate && env-cmd yarn workspace prisma-gen run postgen",
-    "push": "yarn workspace prisma-gen run prisma db push && env-cmd yarn workspace prisma-gen run postgen"
+    "generate": "yarn workspace prisma-gen run prisma generate && yarn workspace prisma-gen run postgen",
+    "push": "yarn workspace prisma-gen run prisma db push && yarn workspace prisma-gen run postgen"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0"
