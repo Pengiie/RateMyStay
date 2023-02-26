@@ -66,6 +66,7 @@ declare const livingSpaceSchema: z.ZodObject<{
     id: z.ZodString;
     placeId: z.ZodString;
     name: z.ZodString;
+    distance: z.ZodBigInt;
     website: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     phone: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     photoUrl: z.ZodOptional<z.ZodNullable<z.ZodString>>;
@@ -83,6 +84,7 @@ declare const livingSpaceSchema: z.ZodObject<{
     type: string;
     addressId: string;
     placeId: string;
+    distance: bigint;
     photoAttributions: string[];
     mapsUrl: string;
     campusId: string;
@@ -95,6 +97,7 @@ declare const livingSpaceSchema: z.ZodObject<{
     type: string;
     addressId: string;
     placeId: string;
+    distance: bigint;
     photoAttributions: string[];
     mapsUrl: string;
     campusId: string;

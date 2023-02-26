@@ -1,7 +1,7 @@
 "use client";
 
 import { createTRPCProxyClient } from "@trpc/client";
-import { inferRouterOutputs } from "@trpc/server";
+import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createTRPCReact, httpBatchLink, loggerLink } from "@trpc/react-query";
 import { useState } from "react";
 import type { AppRouter } from "../src/server/api/root";
@@ -57,4 +57,5 @@ export const TRPCClientProvider = ({
     );
 };
 
+export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;

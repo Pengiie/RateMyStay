@@ -5,6 +5,7 @@ export const livingSpaceSchema = z.object({
   id: z.string(),
   placeId: z.string(),
   name: z.string(),
+  distance: z.bigint(),
   website: z.string().nullish(),
   phone: z.string().nullish(),
   photoUrl: z.string().nullish(),

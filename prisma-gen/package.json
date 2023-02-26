@@ -2,10 +2,11 @@
     "name": "prisma-gen",
     "version": "1.0.0",
     "type": "module",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "scripts": {
-        "compile": "tsup src/index.ts --dts --sourcemap --format esm --clean"
+        "compile": "tsup src/index.ts --dts --sourcemap --format esm --clean",
+        "postgen": "echo 'export * from \"./livingtype\"' >> ./src/index.ts && yarn compile"
     },
     "devDependencies": {
         "prisma": "^4.9.0",

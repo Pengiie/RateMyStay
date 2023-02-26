@@ -3484,7 +3484,7 @@ var scrapePlace = async (campusId) => {
     ...townhomes.map((townhome) => ({ placeId: townhome, type: "TOWNHOME" }))
   ];
   console.log(`Found ${dorms.length} dormitories, ${apartments.length} apartments, and ${townhomes.length} townhomes`);
-  await Promise.all(places.map((place) => getAndSavePlaceDetails(campusId, place.placeId, place.type)));
+  await Promise.all(places.map((place) => getAndSavePlaceDetails({ id: campusId, latitude, longitude }, place.placeId, place.type)));
 };
 var searchFor = async (keyword, radius, pages, latitude, longitude) => {
   const params = new URLSearchParams();
@@ -3512,7 +3512,7 @@ var searchFor = async (keyword, radius, pages, latitude, longitude) => {
   }
   return places.map((place) => place.place_id);
 };
-var getAndSavePlaceDetails = async (campusId, placeId, placeType) => {
+var getAndSavePlaceDetails = async (campus, placeId, placeType) => {
   const params = new URLSearchParams();
   params.append("place_id", placeId);
   params.append("fields", "name,address_components,photo,geometry,website,international_phone_number,url");
@@ -3526,6 +3526,10 @@ var getAndSavePlaceDetails = async (campusId, placeId, placeType) => {
   const city = place.address_components?.find((component) => component.types.includes("locality"))?.long_name;
   const state = place.address_components?.find((component) => component.types.includes("administrative_area_level_1"))?.short_name;
   const zip = place.address_components?.find((component) => component.types.includes("postal_code"))?.long_name;
+  const lat = place.geometry?.location.lat;
+  const lon = place.geometry?.location.lng;
+  const toRad = (x) => x * Math.PI / 180;
+  const distance = BigInt(Math.ceil(Math.acos(Math.sin(toRad(lat)) * Math.sin(toRad(campus.latitude)) + Math.cos(toRad(lat)) * Math.cos(toRad(campus.latitude)) * Math.cos(toRad(campus.longitude - lon))) * 6371 * 1e3));
   if (!city || !state || !zip)
     return;
   const phoneNumber = place.international_phone_number?.split(" ")[1].replace(/\D/g, "");
@@ -3535,12 +3539,15 @@ var getAndSavePlaceDetails = async (campusId, placeId, placeType) => {
     where: {
       placeId
     },
-    update: {},
+    update: {
+      distance: distance === BigInt(0) ? BigInt(2e4) : distance,
+      photoUrl
+    },
     create: {
       id: nanoid(),
       campus: {
         connect: {
-          id: campusId
+          id: campus.id
         }
       },
       placeId,
@@ -3568,7 +3575,6 @@ var getAndSavePlaceDetails = async (campusId, placeId, placeType) => {
 var getPhotoUrl = async (photoReference) => {
   const params = new URLSearchParams();
   params.append("photoreference", photoReference);
-  params.append("key", process.env.GOOGLE_MAPS_API_KEY);
   return `https://maps.googleapis.com/maps/api/place/photo?${params.toString()}`;
 };
 scrapePlace("QrXZ3z0n04YBnnNYB2Zio");

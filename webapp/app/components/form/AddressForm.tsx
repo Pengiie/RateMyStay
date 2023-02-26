@@ -15,7 +15,7 @@ const addressSchema = z.object({
 });
 
 const loader = new Loader({
-    apiKey: "AIzaSyC1ZlU-4MaEZjDDu-EOYj2mGcqn7DJ0BPU",
+    apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
     version: "weekly",
     libraries: ["places"],
 });

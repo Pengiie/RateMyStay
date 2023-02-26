@@ -7,6 +7,7 @@ import {
     campusSchema,
     livingSpaceSchema,
     universitySchema,
+    LivingType,
 } from "prisma-gen";
 import { createRouter } from "../../trpc";
 import { baseProcedure } from "../../trpc";
@@ -103,7 +104,49 @@ export const campusRouter = createRouter({
             .input(
                 z.object({
                     campusId: z.string(),
-                    cursor: z.string().optional(),
+                    options: z
+                        .object({
+                            // Rating: 0 to 5
+                            rating: z.object({
+                                min: z.number(),
+                                max: z.number(),
+                            }),
+                            // Price: 100 to 10000
+                            price: z.object({
+                                min: z.number(),
+                                max: z.number(),
+                            }),
+                            // Distance: 0 to 50000 (meters)
+                            distance: z.object({
+                                min: z.number(),
+                                max: z.number(),
+                            }),
+                            sorting: z.array(
+                                z.object({
+                                    key: z.enum([
+                                        "rating",
+                                        "price",
+                                        "distance",
+                                    ]),
+                                    order: z.enum(["asc", "dsc"]),
+                                })
+                            ),
+                            type: z.array(
+                                z.enum<
+                                    LivingType,
+                                    [LivingType, ...LivingType[]]
+                                >(["DORMITORY", "APARTMENT", "TOWNHOME"])
+                            ),
+                        })
+                        .deepPartial()
+                        .default({
+                            rating: { min: 0, max: 5 },
+                            price: { min: 100, max: 10000 },
+                            distance: { min: 0, max: 50000 },
+                            sorting: [{ key: "distance", order: "dsc" }],
+                            type: ["DORMITORY", "APARTMENT", "TOWNHOME"],
+                        }),
+                    page: z.number(),
                 })
             )
             .output(
@@ -114,29 +157,20 @@ export const campusRouter = createRouter({
                 )
             )
             .query(async ({ input, ctx }) => {
-                return await (input.cursor
-                    ? ctx.prisma.livingSpace.findMany({
-                          where: {
-                              campusId: input.campusId,
-                          },
-                          include: {
-                              address: true,
-                          },
-                          cursor: {
-                              id: input.cursor,
-                          },
-                          take: PLACES_PER_PAGE,
-                          skip: 1,
-                      })
-                    : ctx.prisma.livingSpace.findMany({
-                          where: {
-                              campusId: input.campusId,
-                          },
-                          include: {
-                              address: true,
-                          },
-                          take: PLACES_PER_PAGE,
-                      }));
+                return await ctx.prisma.livingSpace.findMany({
+                    where: {
+                        campusId: input.campusId,
+                        type: { in: input.options.type },
+                    },
+                    include: {
+                        address: true,
+                    },
+                    take: PLACES_PER_PAGE,
+                    skip: input.page * PLACES_PER_PAGE,
+                    orderBy: {
+                        distance: "asc",
+                    },
+                });
             }),
     }),
 });

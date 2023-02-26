@@ -50,6 +50,7 @@ model LivingSpace {
     id      String  @id
     placeId String  @unique
     name    String
+    distance BigInt @default(0)
     website String?
     phone   String?
     photoUrl  String?

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { universitySchema } from "prisma-gen";
 import { createRouter, baseProcedure } from "../trpc";
 import { campusRouter } from "./campus/campus";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/data-proxy";
 
 export const universityRouter = createRouter({
     campus: campusRouter,

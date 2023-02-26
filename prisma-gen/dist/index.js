@@ -36,6 +36,7 @@ var livingSpaceSchema = z4.object({
   id: z4.string(),
   placeId: z4.string(),
   name: z4.string(),
+  distance: z4.bigint(),
   website: z4.string().nullish(),
   phone: z4.string().nullish(),
   photoUrl: z4.string().nullish(),

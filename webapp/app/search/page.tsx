@@ -1,33 +1,54 @@
 "use client";
 
+import { Menu, Popover } from "@headlessui/react";
 import {
     MagnifyingGlassIcon,
     ArrowTopRightOnSquareIcon,
     MapPinIcon,
     PhoneIcon,
     GlobeAltIcon,
+    ArrowDownIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { campusSchema } from "prisma-gen";
+
+import { campusSchema, LivingType } from "prisma-gen";
+import React, { memo } from "react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { RecordType } from "zod/lib";
 import CampusInput from "../components/form/CampusInput";
 import Navbar from "../components/Navbar";
-import { RouterOutput, trpc, trpcClient } from "../trpc";
-
-type Places = RouterOutput["university"]["campus"]["places"]["search"];
+import { RouterInput, RouterOutput, trpc, trpcClient } from "../trpc";
+import { PlacesList, Places } from "./PlacesList";
 
 const formSchema = z.object({
-    campus: campusSchema
+    campus: campusSchema,
+    dormitory: z.boolean(),
+    apartment: z.boolean(),
+    townhouse: z.boolean(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
+let lastOptions: {
+    options: RouterInput["university"]["campus"]["places"]["search"]["options"];
+    id: string;
+} | null = null;
+let page = 0;
+let loadingMore = false;
+let globalPlaces = [] as Places;
+
 export default function Search() {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            dormitory: true,
+            apartment: true,
+            townhouse: true,
+        },
     });
 
     const [places, setPlaces] = useState<Places>([]);
@@ -36,34 +57,60 @@ export default function Search() {
     const campuses = trpc.university.campus.getAll.useQuery();
 
     const onSubmit = form.handleSubmit((data) => {
+        const type: RecordType<LivingType, boolean> = {
+            DORMITORY: data.dormitory,
+            APARTMENT: data.apartment,
+            TOWNHOME: data.townhouse,
+        };
+
+        lastOptions = {
+            id: data.campus.id,
+            options: {
+                type: Object.entries(type)
+                    .filter(([_, value]) => value)
+                    .map(([key, _]) => key) as LivingType[],
+            },
+        };
+
+        setLoading(true);
         trpcClient.university.campus.places.search
             .query({
                 campusId: data.campus.id,
+                options: lastOptions.options,
+                page,
             })
             .then((res) => {
-                setPlaces(res);
+                globalPlaces = res;
+                setPlaces(globalPlaces);
                 setLoading(false);
+                loadingMore = false;
             });
-        setLoading(true);
     });
     useEffect(() => {
         window.removeEventListener("scroll", () => {});
         window.addEventListener("scroll", () => {
             if (
                 window.scrollY + window.innerHeight >=
-                    document.body.offsetHeight &&
+                    document.body.offsetHeight * 0.9 &&
                 places.length > 0 &&
-                !loading
+                !loadingMore
             ) {
+                loadingMore = true;
                 setLoading(true);
                 trpcClient.university.campus.places.search
                     .query({
-                        campusId: "OQCG8qrGMp6V0WSaPXGpI",
-                        cursor: places[places.length - 1]!.id,
+                        campusId: lastOptions!.id,
+                        options: lastOptions!.options,
+                        page: ++page,
                     })
                     .then((res) => {
-                        setPlaces([...places, ...res]);
                         setLoading(false);
+                        if(res.length === 0) return;
+                        console.log(res);
+                        globalPlaces = [...globalPlaces, ...res];
+                        setPlaces(globalPlaces);
+                        console.log(globalPlaces.length);
+                        loadingMore = false;
                     });
             }
         });
@@ -77,13 +124,74 @@ export default function Search() {
                 <div className="grid-cols-[1fr minmax(36rem, 30%)] grid gap-8">
                     <form onSubmit={onSubmit} className="flex gap-4">
                         <div className="flex flex-grow flex-row">
-                            <div className="flex flex-grow items-center rounded-md border border-gray-400 bg-gray-100">
+                            <div className="flex flex-grow items-center rounded-l-md border border-gray-400 bg-gray-100">
                                 <MagnifyingGlassIcon
                                     width={24}
                                     height={24}
                                     className="ml-4"
                                 />
-                                <CampusInput name="campus" control={form.control} campuses={campuses.data ?? []}/>
+                                <CampusInput
+                                    name="campus"
+                                    control={form.control}
+                                    campuses={campuses.data ?? []}
+                                />
+                            </div>
+                            <div className="relative h-full">
+                                <Popover className="h-full">
+                                    {({ open }) => (
+                                        <>
+                                            <Popover.Button as={React.Fragment}>
+                                                <div className="flex h-full items-center gap-2 rounded-r-md border border-gray-400 bg-gray-200 px-8 hover:cursor-pointer ui-open:rounded-br-none">
+                                                    <p className="font-normal text-secondary-800">
+                                                        Type
+                                                    </p>
+                                                    {open ? (
+                                                        <ChevronUpIcon
+                                                            width={24}
+                                                            height={24}
+                                                        />
+                                                    ) : (
+                                                        <ChevronDownIcon
+                                                            width={24}
+                                                            height={24}
+                                                        />
+                                                    )}
+                                                </div>
+                                            </Popover.Button>
+                                            <Popover.Panel className="absolute w-full rounded-md rounded-t-none border border-gray-400 bg-gray-100 p-4 text-sm font-normal focus-visible:border-gray-400 ui-open:block ui-not-open:hidden ">
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            {...form.register(
+                                                                "dormitory"
+                                                            )}
+                                                        />
+                                                        <label>Dormitory</label>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            {...form.register(
+                                                                "apartment"
+                                                            )}
+                                                        />
+                                                        <label>Apartment</label>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            {...form.register(
+                                                                "townhouse"
+                                                            )}
+                                                        />
+                                                        <label>Townhouse</label>
+                                                    </div>
+                                                </div>
+                                            </Popover.Panel>
+                                        </>
+                                    )}
+                                </Popover>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -94,96 +202,8 @@ export default function Search() {
                             />
                         </div>
                     </form>
-                    {places.length > 0 && <p>{`Showing ${places.length} places`}</p>}
                     <div className="flex flex-col gap-16">
-                        {places.map((place) => (
-                            <div key={place.id} className="flex flex-col gap-1">
-                                <div>
-                                    <div className="flex items-center gap-1">
-                                        <h2 className="text-3xl font-medium leading-none">
-                                            {place.name}
-                                        </h2>
-                                        <a href={place.mapsUrl}>
-                                            <ArrowTopRightOnSquareIcon
-                                                width={32}
-                                                height={32}
-                                            />
-                                        </a>
-                                    </div>
-                                </div>
-                                <h3 className="text-lg capitalize text-gray-600">
-                                    {place.type}
-                                </h3>
-                                <div className="flex gap-4">
-                                    <div className="relative h-[312px] w-[448px]">
-                                        {place.photoUrl ? (
-                                            <Image
-                                                src={`${place.photoUrl}&maxwidth=448`}
-                                                fill
-                                                alt={""}
-                                                className="object-cover"
-                                            />
-                                        ) : (
-                                            <div className="h-full w-full bg-gray-200" />
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <div className="flex items-center gap-2">
-                                            <MapPinIcon
-                                                width={24}
-                                                height={24}
-                                            />
-                                            <a
-                                                href={place.mapsUrl}
-                                                target="_blank"
-                                                className="text-base hover:underline"
-                                            >{`${place.address.street} ${place.address.city}, ${place.address.state} ${place.address.zip}`}</a>
-                                        </div>
-                                        {place.website && (
-                                            <div className="flex items-center gap-2">
-                                                <GlobeAltIcon
-                                                    width={24}
-                                                    height={24}
-                                                />
-                                                <a
-                                                    href={place.website}
-                                                    target="_blank"
-                                                    className="text-base text-blue-500 hover:underline"
-                                                >
-                                                    {
-                                                        place.website
-                                                            .split("//")[1]!
-                                                            .split("/")[0]
-                                                    }
-                                                </a>
-                                            </div>
-                                        )}
-                                        {place.phone && (
-                                            <div className="flex items-center gap-2">
-                                                <PhoneIcon
-                                                    width={24}
-                                                    height={24}
-                                                />
-                                                <a
-                                                    href={`phone:${place.phone}`}
-                                                    target="_blank"
-                                                    className="text-base hover:underline"
-                                                >{`(${place.phone.substring(
-                                                    0,
-                                                    3
-                                                )}) ${place.phone.substring(
-                                                    4,
-                                                    7
-                                                )}-${place.phone.substring(
-                                                    7,
-                                                    10
-                                                )}`}</a>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                        <PlacesList places={places} />
                     </div>
                     {loading && (
                         <div className="h-8 w-8 animate-spin rounded-full border-4 border-t-4 border-gray-400 border-t-secondary-800" />

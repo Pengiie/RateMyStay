@@ -30,8 +30,9 @@ export default function UniversityInput<FormData extends FieldValues>(
                         campus ? displayName(campus) : ""
                     }
                     className="w-full bg-gray-100 p-4"
+                    autoComplete="off"
                 />
-                <Combobox.Options className="w-full ml-2 rounded-md rounded-t-none border border-gray-400 text-sm font-normal ui-open:block absolute ui-not-open:hidden bg-gray-100">
+                <Combobox.Options className="w-[calc(100%-0.5rem)] ml-2 rounded-md rounded-t-none border border-gray-400 text-sm font-normal ui-open:block absolute ui-not-open:hidden bg-gray-100">
                     {props.campuses &&
                         props.campuses.map((campus) => (
                             <Combobox.Option
